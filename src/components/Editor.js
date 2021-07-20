@@ -38,6 +38,9 @@ export default class Editor extends React.Component {
             clearUndoHistory: () => {
                 // Called when switching notes to prevent history mixup.
                 this.quill.history.clear()
+            },
+            onNoteLockToggle: (isLocked) => {
+                this.quill.enable(!isLocked)
             }
         };
 
