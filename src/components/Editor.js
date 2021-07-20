@@ -35,6 +35,27 @@ export default class Editor extends React.Component {
             },
             replaceText: ({ regex, replacement, previousLine }) => {
             },
+            getElementsBySelector: (selector) => {
+                document.getElementsByClassName('ql-editor')[0].querySelectorAll('p')
+            },
+            insertElement: (element, inVicinityOfElement, insertionType) => {
+                if (inVicinityOfElement) {
+                    if (insertionType === 'afterend') {
+                        inVicinityOfElement.insertAdjacentElement('afterend', element);
+                    } else if (insertionType === 'child') {
+                        inVicinityOfElement.after(element);
+                    }
+                } else {
+                    let index = 0;
+                    if (this.quill.getSelection()) {
+                        index = this.quill.getSelection().index
+                    }
+                    this.quill.clipboard.dangerouslyPasteHTML(index, element.outerHTML, 'api')
+                }
+            },
+            preprocessElement: (element) => {
+                return element;
+            },
             clearUndoHistory: () => {
                 // Called when switching notes to prevent history mixup.
                 this.quill.history.clear()
