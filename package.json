@@ -4,18 +4,26 @@
   "private": true,
   "dependencies": {
     "@standardnotes/editor-kit": "^2.1.1",
+    "copy-webpack-plugin": "^8.1.1",
     "filesafe-embed": "^1.0.10",
     "filesafe-js": "^1.0.4",
+    "html-webpack-plugin": "^5.3.1",
+    "mini-css-extract-plugin": "^2.1.0",
     "quill": "^1.3.7",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3"
+    "react-scripts": "4.0.3",
+    "sn-stylekit": "^5.2.6",
+    "webpack": "^5.45.1",
+    "webpack-merge": "^5.8.0",
+    "webpack-merge-and-include-globally": "^2.3.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint app/ --ext .js",
+    "lint:fix": "yarn lint --fix",
+    "build": "webpack --config webpack.prod.js",
+    "start": "webpack serve --config webpack.dev.js --progress --hot"
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.7.2"
   }
 }
