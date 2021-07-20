@@ -1,0 +1,9 @@
+{
+  "identifier": "org.standardnotes.bold-editor-dev",
+  "name": "Quill Editor - Dev",
+  "content_type": "SN|Component",
+  "area": "editor-editor",
+  "version": "1.0.0",
+  "description": "",
+  "url": "http://localhost:3000/index.html"
+} 
