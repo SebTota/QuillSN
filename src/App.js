@@ -9,7 +9,8 @@ export default class App extends React.Component {
   render() {
     return (
         <div id="editor-container">
-          <div key="editor" id="editor">
+            <div id="filesafe-react-client"></div>
+            <div key="editor" id="editor">
               <Editor />
           </div>
         </div>
