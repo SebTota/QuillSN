@@ -19,7 +19,6 @@ export default class Editor extends React.Component {
     configureEditorKit() {
         const delegate = {
             insertRawText: (rawText) => {
-                console.log(`insert raw text: ${rawText}`)
                 let index = 0;
                 if (this.quill.getSelection()) {
                     index = this.quill.getSelection().index
@@ -27,30 +26,28 @@ export default class Editor extends React.Component {
                 this.quill.clipboard.dangerouslyPasteHTML(index, rawText, 'api')
             },
             setEditorRawText: (rawText) => {
-                console.log('set raw text')
                 const quillDelta = this.quill.clipboard.convert(rawText)
                 this.quill.setContents(quillDelta)
             },
             getCurrentLineText: () => {
-                console.log('get current line')
                 const line = this.quill.getLine(this.quill.getSelection().index)
                 if (line && line.domNode) {
-                    console.log(line.domNode)
                     return line.domNode;
                 }
             },
             getPreviousLineText: () => {
+                // TODO: Complete function
                 console.log('get previous line')
                 return ""
             },
             replaceText: ({ regex, replacement, previousLine }) => {
+                // TODO: Complete function
                 console.log('replace text')
                 console.log(regex)
                 console.log(replacement)
                 console.log(previousLine)
             },
             getElementsBySelector: (selector) => {
-                console.log(`get elements by selector ${selector}`)
                 return document.getElementsByClassName('ql-editor')[0].querySelectorAll(selector)
             },
             insertElement: (element, inVicinityOfElement, insertionType) => {
@@ -127,7 +124,6 @@ export default class Editor extends React.Component {
         });
 
         const c = this;
-        const Delta = Quill.import('delta');
         const Inline = Quill.import('blots/inline');
 
         this.quill.on('text-change', function(delta, oldDelta, source) {
