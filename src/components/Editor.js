@@ -137,14 +137,18 @@ export default class Editor extends React.Component {
         class LabelBlot extends Inline {
             static create(value) {
                 let node = super.create();
-                node.setAttribute('id', value);
-                node.setAttribute('ghost', value);
-                node.setAttribute('contenteditable', value);
+                node.setAttribute('id', value.id);
+                node.setAttribute('ghost', value.ghost);
+                node.setAttribute('contenteditable', value.contenteditable);
                 return node;
             }
 
             static formats(node) {
-                return node.getAttribute('id');
+                return {
+                    id: node.getAttribute('id'),
+                    ghost: node.getAttribute('ghost'),
+                    contenteditable: node.getAttribute('contenteditable')
+                };
             }
         }
         LabelBlot.blotName = 'label';
