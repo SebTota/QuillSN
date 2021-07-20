@@ -1,0 +1,9 @@
+.ql-editor ul[data-checked="false"] > li::before {
+    content: '\2610';
+    font-size: 1.5rem;
+}
+
+.ql-editor ul[data-checked="true"] li::before {
+    content: '\2611';
+    font-size: 1.5rem;
+}
