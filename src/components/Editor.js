@@ -34,8 +34,9 @@ export default class Editor extends React.Component {
             },
             getCurrentLineText: () => {
                 const line = this.quill.getLine(this.quill.getSelection().index)
-                if (line && line.domNode) {
-                    return line.domNode;
+                if (line && line[0] && line[0].domNode && line[0].domNode.textContent) {
+                    console.log(`current line: ${line[0].domNode.textContent}`)
+                    return line[0].domNode.textContent;
                 }
             },
             getPreviousLineText: () => {
@@ -49,9 +50,22 @@ export default class Editor extends React.Component {
                 console.log(regex)
                 console.log(replacement)
                 console.log(previousLine)
+
+                const cursorLocation = this.quill.getSelection().index  // Get current cursor index
+                let text = this.quill.root.innerHTML;
+                text = text.replace(regex, replacement)
+                text = text.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
+                this.quill.setContents([])  // Clear the editor
+                this.quill.clipboard.dangerouslyPasteHTML(0, text, 'api')
+                this.quill.setSelection(cursorLocation)
+
+                // this.quill.root.innerHTML.replace(regex, replacement)
             },
             getElementsBySelector: (selector) => {
-                return document.getElementsByClassName('ql-editor')[0].querySelectorAll(selector)
+                console.log(`get elements by selector: ${selector}`)
+                console.log(this.quill.root.querySelectorAll(selector))
+
+                return this.quill.root.querySelectorAll(selector)
             },
             insertElement: (element, inVicinityOfElement, insertionType) => {
                 if (inVicinityOfElement) {
@@ -128,7 +142,6 @@ export default class Editor extends React.Component {
         const Inline = Quill.import('blots/inline');
 
         this.quill.on('text-change', function(delta, oldDelta, source) {
-            console.log(c.quill.root.innerHTML)
             c.editorKit.onEditorValueChanged(c.quill.root.innerHTML);
         });
 
