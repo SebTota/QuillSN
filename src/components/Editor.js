@@ -19,7 +19,7 @@ export default class Editor extends React.Component {
     configureEditorKit() {
         const delegate = {
             insertRawText: (rawText) => {
-                rawText = rawText.replace(/><\/p>/g, '>...</p>')
+                rawText = rawText.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
                 let index = 0;
                 if (this.quill.getSelection()) {
                     index = this.quill.getSelection().index
@@ -27,7 +27,7 @@ export default class Editor extends React.Component {
                 this.quill.clipboard.dangerouslyPasteHTML(index, rawText, 'api')
             },
             setEditorRawText: (rawText) => {
-                rawText = rawText.replace(/><\/p>/g, '>...</p>')
+                rawText = rawText.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
                 //const quillDelta = this.quill.clipboard.convert(rawText)
                 this.quill.setContents([])
                 this.quill.clipboard.dangerouslyPasteHTML(0, rawText, 'api')
@@ -128,6 +128,7 @@ export default class Editor extends React.Component {
         const Inline = Quill.import('blots/inline');
 
         this.quill.on('text-change', function(delta, oldDelta, source) {
+            console.log(c.quill.root.innerHTML)
             c.editorKit.onEditorValueChanged(c.quill.root.innerHTML);
         });
 
