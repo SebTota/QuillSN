@@ -19,6 +19,7 @@ export default class Editor extends React.Component {
     configureEditorKit() {
         const delegate = {
             insertRawText: (rawText) => {
+                rawText = rawText.replace(/><\/p>/g, '>...</p>')
                 let index = 0;
                 if (this.quill.getSelection()) {
                     index = this.quill.getSelection().index
@@ -26,8 +27,10 @@ export default class Editor extends React.Component {
                 this.quill.clipboard.dangerouslyPasteHTML(index, rawText, 'api')
             },
             setEditorRawText: (rawText) => {
-                const quillDelta = this.quill.clipboard.convert(rawText)
-                this.quill.setContents(quillDelta)
+                rawText = rawText.replace(/><\/p>/g, '>...</p>')
+                //const quillDelta = this.quill.clipboard.convert(rawText)
+                this.quill.setContents([])
+                this.quill.clipboard.dangerouslyPasteHTML(0, rawText, 'api')
             },
             getCurrentLineText: () => {
                 const line = this.quill.getLine(this.quill.getSelection().index)
@@ -51,7 +54,6 @@ export default class Editor extends React.Component {
                 return document.getElementsByClassName('ql-editor')[0].querySelectorAll(selector)
             },
             insertElement: (element, inVicinityOfElement, insertionType) => {
-                console.log(element)
                 if (inVicinityOfElement) {
                     if (insertionType === 'afterend') {
                         inVicinityOfElement.insertAdjacentElement('afterend', element);
@@ -80,8 +82,7 @@ export default class Editor extends React.Component {
 
         this.editorKit = new EditorKit(delegate, {
             mode: 'html',
-            supportsFileSafe: true,
-            coallesedSavingDelay: 150
+            supportsFileSafe: true
         });
     }
 
@@ -137,9 +138,9 @@ export default class Editor extends React.Component {
         class LabelBlot extends Inline {
             static create(value) {
                 let node = super.create();
-                node.setAttribute('id', value.id);
-                node.setAttribute('ghost', value.ghost);
-                node.setAttribute('contenteditable', value.contenteditable);
+                if (value.id) node.setAttribute('id', value.id);
+                if (value.ghost) node.setAttribute('ghost', value.ghost);
+                if (value.contenteditable) node.setAttribute('contenteditable', value.contenteditable);
                 return node;
             }
 
@@ -155,6 +156,33 @@ export default class Editor extends React.Component {
         LabelBlot.tagName = 'label';
         Quill.register(LabelBlot);
 
+        class FilesafePlaceholderBlot extends Inline {
+            static create(value) {
+                let node = super.create();
+                console.log(node)
+                if (value.fsplaceholder) node.setAttribute('fsplaceholder', value.fsplaceholder);
+                if (value.style) node.setAttribute('style', value.style);
+                if (value.fscollapsable) node.setAttribute('fscollapsable', value.fscollapsable);
+                if (value.ghost) node.setAttribute('ghost', value.ghost);
+                if (value.fsid) node.setAttribute('fsid', value.fsid);
+                if (value.fsname) node.setAttribute('fsname', value.fsname);
+                return node;
+            }
+
+            static formats(node) {
+                return {
+                    fsplaceholder: node.getAttribute('fsplaceholder'),
+                    style: node.getAttribute('style'),
+                    fscollapsable: node.getAttribute('fscollapsable'),
+                    ghost: node.getAttribute('ghost'),
+                    fsid: node.getAttribute('fsid'),
+                    fsname: node.getAttribute('fsname')
+                };
+            }
+        }
+        FilesafePlaceholderBlot.blotName = 'FilesafePlaceholderBlot';
+        FilesafePlaceholderBlot.tagName = 'p';
+        Quill.register(FilesafePlaceholderBlot);
 
         /*
         This will only handle images that are added to the editor when the image button is used in the toolbar.
@@ -166,19 +194,15 @@ export default class Editor extends React.Component {
             //var value = prompt('What is the image URL');
             //this.quill.insertEmbed(range.index, 'image', value, Quill.sources.USER);
 
-            //this.filesafe = window.filesafe_params;
-            //const mountPoint = document.getElementById('filesafe-react-client');
-            //this.filesafe.embed.FilesafeEmbed.renderInElement(mountPoint, this.filesafe.client);
+            // this.filesafe = window.filesafe_params;
+            // const mountPoint = document.getElementById('filesafe-react-client');
+            // this.filesafe.embed.FilesafeEmbed.renderInElement(mountPoint, this.filesafe.client);
 
             var input = document.createElement('input');
             input.type = 'file';
 
             input.onchange = e => {
-
-                // getting a hold of the file reference
                 var file = e.target.files[0];
-
-                console.log(c.editorKit)
 
                 if (!c.editorKit.canUploadFiles()) {
                     console.log('Cant upload files')
@@ -186,12 +210,7 @@ export default class Editor extends React.Component {
                     return;
                 }
 
-                c.editorKit.uploadJSFileObject(file).then((descriptor) => {
-                    console.log(descriptor)
-                    if (!descriptor || !descriptor.uuid) {
-                        alert("File failed to upload. Please try again");
-                    }
-                });
+                c.editorKit.uploadJSFileObject(file).then((descriptor) => {});
             }
             input.click();
         }
