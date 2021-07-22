@@ -19,6 +19,7 @@ export default class Editor extends React.Component {
     configureEditorKit() {
         const delegate = {
             insertRawText: (rawText) => {
+                console.log('insert raw text')
                 rawText = rawText.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
                 let index = 0;
                 if (this.quill.getSelection()) {
@@ -28,11 +29,21 @@ export default class Editor extends React.Component {
             },
             setEditorRawText: (rawText) => {
                 rawText = rawText.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
+                
+                /*
+                * Fixes bug where an extra new line is added every time a note is opened
+                * Fixes bug where you can't open the Extensions tab when a note is opened
+                */
+                if (rawText === this.quill.root.innerHTML) {
+                    return
+                }
+
                 //const quillDelta = this.quill.clipboard.convert(rawText)
                 this.quill.setContents([])
                 this.quill.clipboard.dangerouslyPasteHTML(0, rawText, 'api')
             },
             getCurrentLineText: () => {
+                console.log('get current line text')
                 const line = this.quill.getLine(this.quill.getSelection().index)[0]
                 if (line && line.domNode && line.domNode.textContent) {
                     return line.domNode.textContent;
@@ -44,6 +55,7 @@ export default class Editor extends React.Component {
                 return ""
             },
             replaceText: ({ regex, replacement, previousLine }) => {
+                console.log('replace text')
                 // TODO: Figure out what previousLine is required for
 
                 const cursorLocation = this.quill.getSelection().index  // Get current cursor index
@@ -75,9 +87,11 @@ export default class Editor extends React.Component {
                 this.quill.updateContents(b, 'api')
             },
             getElementsBySelector: (selector) => {
+                console.log('get element by selector')
                 return this.quill.root.querySelectorAll(selector)
             },
             insertElement: (element, inVicinityOfElement, insertionType) => {
+                console.log('insert element')
                 if (inVicinityOfElement) {
                     if (insertionType === 'afterend') {
                         inVicinityOfElement.insertAdjacentElement('afterend', element);
@@ -152,8 +166,6 @@ export default class Editor extends React.Component {
         const Inline = Quill.import('blots/inline');
 
         this.quill.on('text-change', function(delta, oldDelta, source) {
-            console.log('change')
-            console.log(delta)
             c.editorKit.onEditorValueChanged(c.quill.root.innerHTML);
         });
 
@@ -182,6 +194,10 @@ export default class Editor extends React.Component {
         LabelBlot.tagName = 'label';
         Quill.register(LabelBlot);
 
+        /*
+        * Create a custom Quill/Parchment Blot that allows <p> elements with custom attributes. By default Quill strips all of these attributes
+        * making it impossible for the EditorKit to later find the elements when inserting an image. 
+        */
         class FilesafePlaceholderBlot extends Inline {
             static create(value) {
                 let node = super.create();
@@ -216,10 +232,6 @@ export default class Editor extends React.Component {
         drastically slow down the editor.
          */
         function imageHandler() {
-            //var range = this.quill.getSelection();
-            //var value = prompt('What is the image URL');
-            //this.quill.insertEmbed(range.index, 'image', value, Quill.sources.USER);
-
             this.filesafe = window.filesafe_params;
             const mountPoint = document.getElementById('filesafe-react-client');
             this.filesafe.embed.FilesafeEmbed.renderInElement(mountPoint, this.filesafe.client);
