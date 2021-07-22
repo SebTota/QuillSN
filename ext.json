@@ -5,5 +5,5 @@
   "area": "editor-editor",
   "version": "0.1.0",
   "description": "A WYSIWYG editor built using Quill.",
-  "url": "https://sebtota.github.io/sn-quilljs-editor/dist/index.html"
+  "url": "https://sebtota.github.io/QuillSN/dist/index.html"
 } 

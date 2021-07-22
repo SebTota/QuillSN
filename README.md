@@ -13,7 +13,7 @@ It uses the Standard Notes [Editor Kit](https://github.com/standardnotes/editor-
 * Click on `Import Extensions`
 * Copy and Paste the following link into the `Enter Extensions Link` textbox and click Enter
 ```
-https://sebtota.github.io/sn-quilljs-editor/ext.json
+https://sebtota.github.io/QuillSN/ext.json
 ```
 
 ## Support/Contribution
