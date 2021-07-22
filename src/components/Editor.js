@@ -210,8 +210,6 @@ export default class Editor extends React.Component {
                 if (value.ghost) node.setAttribute('ghost', value.ghost);
                 if (value.fsid) node.setAttribute('fsid', value.fsid);
                 if (value.fsname) node.setAttribute('fsname', value.fsname);
-                console.log('created node')
-                console.log(node.innerHTML)
                 return node;
             }
 
@@ -236,9 +234,11 @@ export default class Editor extends React.Component {
         drastically slow down the editor.
          */
         function imageHandler() {
+            const filesafeModal = document.getElementById("filesafe-modal");
             this.filesafe = window.filesafe_params;
             const mountPoint = document.getElementById('filesafe-react-client');
             this.filesafe.embed.FilesafeEmbed.renderInElement(mountPoint, this.filesafe.client);
+            filesafeModal.style.display = "block";
 
             // var input = document.createElement('input');
             // input.type = 'file';
@@ -256,6 +256,8 @@ export default class Editor extends React.Component {
             // }
             // input.click();
         }
+
+        
     }
 
     render() {

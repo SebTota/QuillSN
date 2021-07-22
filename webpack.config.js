@@ -65,6 +65,9 @@ module.exports = {
                 "vendor.css": [
                     'node_modules/filesafe-embed/dist/dist.css',
                     'quill/quill.snow.css'
+                ],
+                "style.css": [
+                    'public/style.scss'
                 ]
             }
         }),
