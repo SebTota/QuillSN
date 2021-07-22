@@ -19,8 +19,7 @@ export default class Editor extends React.Component {
     configureEditorKit() {
         const delegate = {
             insertRawText: (rawText) => {
-                console.log('insert raw text')
-                rawText = rawText.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
+                rawText = rawText.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')}).replace(/display: none/g, '')
                 let index = 0;
                 if (this.quill.getSelection()) {
                     index = this.quill.getSelection().index
@@ -28,7 +27,7 @@ export default class Editor extends React.Component {
                 this.quill.clipboard.dangerouslyPasteHTML(index, rawText, 'api')
             },
             setEditorRawText: (rawText) => {
-                rawText = rawText.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
+                rawText = rawText.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')}).replace(/display: none/g, '')
                 
                 /*
                 * Fixes bug where an extra new line is added every time a note is opened
@@ -43,23 +42,29 @@ export default class Editor extends React.Component {
                 this.quill.clipboard.dangerouslyPasteHTML(0, rawText, 'api')
             },
             getCurrentLineText: () => {
-                console.log('get current line text')
                 const line = this.quill.getLine(this.quill.getSelection().index)[0]
                 if (line && line.domNode && line.domNode.textContent) {
                     return line.domNode.textContent;
                 }
             },
             getPreviousLineText: () => {
-                // TODO: Complete function/when is this used
-                console.log('get previous line')
-                return ""
+                const cursorLocation = c.quill.getSelection().index  // Get current cursor index
+                const [line, offset] = c.quill.getLine(cursorLocation);  // Current line
+                const previousLineIndex = cursorLocation - offset - 1;
+
+                // Previous line may not exist if on the first line of editor
+                if (previousLineIndex < 0) {
+                    return false;
+                }
+                
+                const [prevLine, prevOffset] = c.quill.getLine(previousLineIndex); // Get previous line
+                return prevLine.domNode.textContent
             },
             replaceText: ({ regex, replacement, previousLine }) => {
-                console.log('replace text')
                 // TODO: Figure out what previousLine is required for
 
                 const cursorLocation = this.quill.getSelection().index  // Get current cursor index
-                replacement = replacement.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
+                replacement = replacement.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')}).replace(/display: none/g, '')
 
                 /*
                 * line = line content
@@ -87,11 +92,9 @@ export default class Editor extends React.Component {
                 this.quill.updateContents(b, 'api')
             },
             getElementsBySelector: (selector) => {
-                console.log('get element by selector')
                 return this.quill.root.querySelectorAll(selector)
             },
             insertElement: (element, inVicinityOfElement, insertionType) => {
-                console.log('insert element')
                 if (inVicinityOfElement) {
                     if (insertionType === 'afterend') {
                         inVicinityOfElement.insertAdjacentElement('afterend', element);
@@ -163,7 +166,7 @@ export default class Editor extends React.Component {
         });
 
         const c = this;
-        const Inline = Quill.import('blots/inline');
+        const Block = Quill.import("blots/block");
 
         this.quill.on('text-change', function(delta, oldDelta, source) {
             c.editorKit.onEditorValueChanged(c.quill.root.innerHTML);
@@ -173,7 +176,7 @@ export default class Editor extends React.Component {
         Create a custom LabelBlot that allows us to hold a <label>
         necessary for Standard Note Filesafe image workflow
          */
-        class LabelBlot extends Inline {
+        class LabelBlot extends Block {
             static create(value) {
                 let node = super.create();
                 if (value.id) node.setAttribute('id', value.id);
@@ -198,16 +201,17 @@ export default class Editor extends React.Component {
         * Create a custom Quill/Parchment Blot that allows <p> elements with custom attributes. By default Quill strips all of these attributes
         * making it impossible for the EditorKit to later find the elements when inserting an image. 
         */
-        class FilesafePlaceholderBlot extends Inline {
+        class FilesafePlaceholderBlot extends Block {
             static create(value) {
                 let node = super.create();
-                console.log(node)
                 if (value.fsplaceholder) node.setAttribute('fsplaceholder', value.fsplaceholder);
                 if (value.style) node.setAttribute('style', value.style);
                 if (value.fscollapsable) node.setAttribute('fscollapsable', value.fscollapsable);
                 if (value.ghost) node.setAttribute('ghost', value.ghost);
                 if (value.fsid) node.setAttribute('fsid', value.fsid);
                 if (value.fsname) node.setAttribute('fsname', value.fsname);
+                console.log('created node')
+                console.log(node.innerHTML)
                 return node;
             }
 
