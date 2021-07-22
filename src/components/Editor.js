@@ -171,6 +171,9 @@ export default class Editor extends React.Component {
                     handlers: {
                         image: imageHandler
                     }
+                },
+                clipboard: {
+                    matchVisual: false
                 }
             },
             theme: 'snow'
