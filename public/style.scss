@@ -11,6 +11,19 @@
 }
 */
 
+body {
+  height: 100vh;
+  margin: 0;
+}
+
+.ql-container.ql-snow {
+  height: auto;
+}
+.ql-editor {
+  height: 100%;
+  overflow-y: scroll;
+}
+
 /* The Modal (background) */
 .modal {
     display: none; /* Hidden by default */

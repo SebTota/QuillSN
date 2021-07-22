@@ -14,6 +14,17 @@ export default class Editor extends React.Component {
     componentDidMount() {
         this.configureEditorKit();
         this.configureEditor();
+
+        /*
+        * Resize Quill text area when a resize is detected to make sure the toolbar doesn't hide 
+        * when scrolling
+        */
+        window.addEventListener('resize', () => { 
+            const quillToolbar = document.getElementsByClassName('ql-toolbar')[0];
+            const quillEditor = document.getElementById('editor')
+
+            quillEditor.style.height = (window.innerHeight - quillToolbar.offsetHeight).toString() + "px";
+        })
     }
 
     configureEditorKit() {
