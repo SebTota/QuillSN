@@ -1,9 +1,9 @@
 {
-  "identifier": "org.standardnotes.bold-editor-dev",
-  "name": "Quill Editor - Dev",
+  "identifier": "com.sebtota.quill-editor",
+  "name": "Quill Editor",
   "content_type": "SN|Component",
   "area": "editor-editor",
-  "version": "1.0.0",
-  "description": "",
-  "url": "http://localhost:8001/index.html"
+  "version": "0.1.0",
+  "description": "A WYSIWYG editor built using Quill.",
+  "url": "https://sebtota.github.io/sn-quilljs-editor/dist/index.html"
 } 
