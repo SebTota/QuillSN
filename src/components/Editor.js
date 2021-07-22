@@ -33,10 +33,9 @@ export default class Editor extends React.Component {
                 this.quill.clipboard.dangerouslyPasteHTML(0, rawText, 'api')
             },
             getCurrentLineText: () => {
-                const line = this.quill.getLine(this.quill.getSelection().index)
-                if (line && line[0] && line[0].domNode && line[0].domNode.textContent) {
-                    console.log(`current line: ${line[0].domNode.textContent}`)
-                    return line[0].domNode.textContent;
+                const line = this.quill.getLine(this.quill.getSelection().index)[0]
+                if (line && line.domNode && line.domNode.textContent) {
+                    return line.domNode.textContent;
                 }
             },
             getPreviousLineText: () => {
@@ -45,26 +44,35 @@ export default class Editor extends React.Component {
                 return ""
             },
             replaceText: ({ regex, replacement, previousLine }) => {
-                // TODO: Complete function
-                console.log('replace text')
-                console.log(regex)
-                console.log(replacement)
-                console.log(previousLine)
-
                 const cursorLocation = this.quill.getSelection().index  // Get current cursor index
-                let text = this.quill.root.innerHTML;
-                text = text.replace(regex, replacement)
-                text = text.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
-                this.quill.setContents([])  // Clear the editor
-                this.quill.clipboard.dangerouslyPasteHTML(0, text, 'api')
-                this.quill.setSelection(cursorLocation)
+                replacement = replacement.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
 
-                // this.quill.root.innerHTML.replace(regex, replacement)
+                /*
+                * line = line content
+                * offset = index representing of where the provided cursorLocation starts in the given line, oh and also... "migos!"
+                 */
+                let [line, offset] = this.quill.getLine(cursorLocation);
+                const newElementDelta = this.quill.clipboard.convert(replacement);
+
+                const removeIndexStart = cursorLocation - offset;
+                const removeLength = line.domNode.textContent.length - line.domNode.textContent.replace(regex, '').replace(/\s$/, '').trim().length;
+
+                const Delta = Quill.import('delta');
+                /*
+                * Remove the existing item
+                 */
+                const a = new Delta().retain(removeIndexStart).delete(removeLength);
+                this.quill.updateContents(a, 'api')
+
+                /*
+                * Add the new replacement item
+                 */
+                // Try to not use dangerouslyPasteHTML as this may be deprecated in the next version of QuillJS
+                // this.quill.clipboard.dangerouslyPasteHTML(removeIndexStart, replacement, 'api')
+                const b = new Delta().retain(removeIndexStart).concat(newElementDelta);
+                this.quill.updateContents(b, 'api')
             },
             getElementsBySelector: (selector) => {
-                console.log(`get elements by selector: ${selector}`)
-                console.log(this.quill.root.querySelectorAll(selector))
-
                 return this.quill.root.querySelectorAll(selector)
             },
             insertElement: (element, inVicinityOfElement, insertionType) => {
@@ -142,6 +150,8 @@ export default class Editor extends React.Component {
         const Inline = Quill.import('blots/inline');
 
         this.quill.on('text-change', function(delta, oldDelta, source) {
+            console.log('change')
+            console.log(delta)
             c.editorKit.onEditorValueChanged(c.quill.root.innerHTML);
         });
 
@@ -204,29 +214,29 @@ export default class Editor extends React.Component {
         drastically slow down the editor.
          */
         function imageHandler() {
-            var range = this.quill.getSelection();
+            //var range = this.quill.getSelection();
             //var value = prompt('What is the image URL');
             //this.quill.insertEmbed(range.index, 'image', value, Quill.sources.USER);
 
-            // this.filesafe = window.filesafe_params;
-            // const mountPoint = document.getElementById('filesafe-react-client');
-            // this.filesafe.embed.FilesafeEmbed.renderInElement(mountPoint, this.filesafe.client);
+            this.filesafe = window.filesafe_params;
+            const mountPoint = document.getElementById('filesafe-react-client');
+            this.filesafe.embed.FilesafeEmbed.renderInElement(mountPoint, this.filesafe.client);
 
-            var input = document.createElement('input');
-            input.type = 'file';
-
-            input.onchange = e => {
-                var file = e.target.files[0];
-
-                if (!c.editorKit.canUploadFiles()) {
-                    console.log('Cant upload files')
-                    // TODO: Show the Filesafe modal
-                    return;
-                }
-
-                c.editorKit.uploadJSFileObject(file).then((descriptor) => {});
-            }
-            input.click();
+            // var input = document.createElement('input');
+            // input.type = 'file';
+            //
+            // input.onchange = e => {
+            //     var file = e.target.files[0];
+            //
+            //     if (!c.editorKit.canUploadFiles()) {
+            //         console.log('Cant upload files')
+            //         // TODO: Show the Filesafe modal
+            //         return;
+            //     }
+            //
+            //     c.editorKit.uploadJSFileObject(file).then((descriptor) => {});
+            // }
+            // input.click();
         }
     }
 
