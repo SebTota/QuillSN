@@ -175,6 +175,10 @@ export default class Editor extends React.Component {
             },
             theme: 'snow'
         });
+        const quillToolbar = document.getElementsByClassName('ql-toolbar')[0];
+            const quillEditor = document.getElementById('editor')
+
+            quillEditor.style.height = (window.innerHeight - quillToolbar.offsetHeight).toString() + "px";
 
         const c = this;
         const Block = Quill.import("blots/block");
