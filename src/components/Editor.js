@@ -39,11 +39,13 @@ export default class Editor extends React.Component {
                 }
             },
             getPreviousLineText: () => {
-                // TODO: Complete function
+                // TODO: Complete function/when is this used
                 console.log('get previous line')
                 return ""
             },
             replaceText: ({ regex, replacement, previousLine }) => {
+                // TODO: Figure out what previousLine is required for
+
                 const cursorLocation = this.quill.getSelection().index  // Get current cursor index
                 replacement = replacement.replace(/<p fsplaceholder=true.*?><\/p>/g, (match) => {return match.replace('></p>', '>FilesafePlaceholder</p>')})
 
