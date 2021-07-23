@@ -50,7 +50,7 @@ export default class Editor extends React.Component {
 
                 //const quillDelta = this.quill.clipboard.convert(rawText)
                 this.quill.setContents([])
-                this.quill.clipboard.dangerouslyPasteHTML(0, rawText, 'api')
+                this.quill.clipboard.dangerouslyPasteHTML(0, rawText, 'api-settext')
             },
             getCurrentLineText: () => {
                 const line = this.quill.getLine(this.quill.getSelection().index)[0]
@@ -84,14 +84,15 @@ export default class Editor extends React.Component {
                 let [line, offset] = this.quill.getLine(cursorLocation);
                 const newElementDelta = this.quill.clipboard.convert(replacement);
 
-                const removeIndexStart = cursorLocation - offset;
+                const beginningOfCurrentLineIndex = cursorLocation - offset;
+                const beginningOfRegex = beginningOfCurrentLineIndex + line.domNode.textContent.length;
                 const removeLength = line.domNode.textContent.length - line.domNode.textContent.replace(regex, '').replace(/\s$/, '').trim().length;
 
                 const Delta = Quill.import('delta');
                 /*
                 * Remove the existing item
                  */
-                const a = new Delta().retain(removeIndexStart).delete(removeLength);
+                const a = new Delta().retain(beginningOfRegex).delete(removeLength);
                 this.quill.updateContents(a, 'api')
 
                 /*
@@ -99,7 +100,7 @@ export default class Editor extends React.Component {
                  */
                 // Try to not use dangerouslyPasteHTML as this may be deprecated in the next version of QuillJS
                 // this.quill.clipboard.dangerouslyPasteHTML(removeIndexStart, replacement, 'api')
-                const b = new Delta().retain(removeIndexStart).concat(newElementDelta);
+                const b = new Delta().retain(beginningOfRegex).concat(newElementDelta);
                 this.quill.updateContents(b, 'api')
             },
             getElementsBySelector: (selector) => {
@@ -178,15 +179,16 @@ export default class Editor extends React.Component {
             },
             theme: 'snow'
         });
-        const quillToolbar = document.getElementsByClassName('ql-toolbar')[0];
-            const quillEditor = document.getElementById('editor')
 
-            quillEditor.style.height = (window.innerHeight - quillToolbar.offsetHeight).toString() + "px";
+        const quillToolbar = document.getElementsByClassName('ql-toolbar')[0];
+        const quillEditor = document.getElementById('editor')
+        quillEditor.style.height = (window.innerHeight - quillToolbar.offsetHeight).toString() + "px";
 
         const c = this;
         const Block = Quill.import("blots/block");
 
         this.quill.on('text-change', function(delta, oldDelta, source) {
+            if (source === 'api-settext') return
             c.editorKit.onEditorValueChanged(c.quill.root.innerHTML);
         });
 
@@ -252,6 +254,11 @@ export default class Editor extends React.Component {
         drastically slow down the editor.
          */
         function imageHandler() {
+            /*console.log(`inserting image, current line text: ${c.editorKit.delegate.getCurrentLineText()}`)
+            if (c.editorKit.delegate.getCurrentLineText() !== '') {
+                c.editorKit.delegate.insertRawText('<p></p>');
+            }*/
+
             const filesafeModal = document.getElementById("filesafe-modal");
             this.filesafe = window.filesafe_params;
             const mountPoint = document.getElementById('filesafe-react-client');
