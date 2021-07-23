@@ -59,8 +59,8 @@ export default class Editor extends React.Component {
                 }
             },
             getPreviousLineText: () => {
-                const cursorLocation = c.quill.getSelection().index  // Get current cursor index
-                const [line, offset] = c.quill.getLine(cursorLocation);  // Current line
+                const cursorLocation = this.quill.getSelection().index  // Get current cursor index
+                const [line, offset] = this.quill.getLine(cursorLocation);  // Current line
                 const previousLineIndex = cursorLocation - offset - 1;
 
                 // Previous line may not exist if on the first line of editor
@@ -68,7 +68,7 @@ export default class Editor extends React.Component {
                     return false;
                 }
                 
-                const [prevLine, prevOffset] = c.quill.getLine(previousLineIndex); // Get previous line
+                const [prevLine, prevOffset] = this.quill.getLine(previousLineIndex); // Get previous line
                 return prevLine.domNode.textContent
             },
             replaceText: ({ regex, replacement, previousLine }) => {
@@ -179,17 +179,15 @@ export default class Editor extends React.Component {
             },
             theme: 'snow'
         });
+        const Block = Quill.import("blots/block");
 
         const quillToolbar = document.getElementsByClassName('ql-toolbar')[0];
         const quillEditor = document.getElementById('editor')
         quillEditor.style.height = (window.innerHeight - quillToolbar.offsetHeight).toString() + "px";
 
-        const c = this;
-        const Block = Quill.import("blots/block");
-
-        this.quill.on('text-change', function(delta, oldDelta, source) {
+        this.quill.on('text-change', (delta, oldDelta, source) => {
             if (source === 'api-settext') return
-            c.editorKit.onEditorValueChanged(c.quill.root.innerHTML);
+            this.editorKit.onEditorValueChanged(this.quill.root.innerHTML);
         });
 
         /*
@@ -254,17 +252,17 @@ export default class Editor extends React.Component {
         drastically slow down the editor.
          */
         function imageHandler() {
-            /*console.log(`inserting image, current line text: ${c.editorKit.delegate.getCurrentLineText()}`)
-            if (c.editorKit.delegate.getCurrentLineText() !== '') {
-                c.editorKit.delegate.insertRawText('<p></p>');
-            }*/
-
             const filesafeModal = document.getElementById("filesafe-modal");
             this.filesafe = window.filesafe_params;
             const mountPoint = document.getElementById('filesafe-react-client');
             this.filesafe.embed.FilesafeEmbed.renderInElement(mountPoint, this.filesafe.client);
             filesafeModal.style.display = "block";
 
+            /*
+            * Below can be used if you would rather have the image handler show a regular image upload rather
+            * than the FileSafe modal. The FileSafe modal would only show when a key or upload location
+            * is not available. 
+            */
             // var input = document.createElement('input');
             // input.type = 'file';
             //
