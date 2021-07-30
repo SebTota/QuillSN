@@ -1,4 +1,4 @@
-Note: This editor is still in development. Use with caution. 
+Important: This editor is no longer under development. The Quill QYSIWYG project seems to no longer be active, so my focus has shifted to using TipTap as the WYSIWYG editor of choice. If you would like to continue using QuillSN, please understand it will no longer be developed by me unless a new active fork of Quill is created. For now, check out [TipTapSN](https://github.com/SebTota/TipTapSN).
 
 <h1 align="center">
   <a >QuillSN</a>
